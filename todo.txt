@@ -1,4 +1,5 @@
 calculate taxation
-- regional
+- canton
     - on net income
-    - on 
+    - on net assets
+- confederation

@@ -1,10 +1,31 @@
-import pandas as pd
+import polars as pl
+import polars.selectors as cs
+from icecream import ic
 
-table = pd.read_excel("data/rates/estv_rates_2023.xlsx", header=3)
-print(
-    table.loc[table['Comune'] == 'Lugano']
-)
-# col_names = table.row(3)
+COLNAMES_RATES = [
+    'canton_ID', 'canton', 'FSO_ID', 'commune', 
+    'income_canton', 'income_commune',
+    'income_protestant', 'income_roman', 'income_catholic',
+    'assets_canton', 'assets_commune',
+    'assets_protestant', 'assets_roman', 'assets_catholic',
+    'profit_canton', 'profit_commune', 'profit_church',
+    'capital_canton', 'capital_commune', 'capital_church'
+]
+
+COLNAMES_SCALES = [
+    'canton_ID', 'canton', 'type_of_tax',
+    'taxable_entity', 'tax_authority',
+    'taxable_income', 'additional_percentage',
+    'base_amount_CHF'
+]
+
+def _try_pandas():
+    import pandas as pd
+    table = pd.read_excel("data/rates/estv_rates_2023.xlsx", header=3)
+    print(
+        table.loc[table['Comune'] == 'Lugano']
+    )
+    col_names = table.row(3)
 
 # def find_multipliers(rates_df: pl.DataFrame, wealth_source: str, commune: str) -> tuple[float | float]:
 #     assert wealth_source in ['income', 'assets']
@@ -34,8 +55,15 @@ print(
 
 
 
-# if __name__ == '__main__':
-#     print(table)
-#     print(table.columns)
+if __name__ == '__main__':
+    table = pl.read_excel(
+        "data/rates/estv_rates_2023.xlsx",
+        has_header=False, engine='xlsx2csv'
+    )
+    table = table.drop(cs.last())
+    table.columns = COLNAMES_RATES
+    table = table.slice(4)
+    print(table)
+    print(table.columns)
     # print(col_names)
     # print(*find_multipliers(table, 'income', 'Lugano'))
