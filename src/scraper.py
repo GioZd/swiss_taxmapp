@@ -84,7 +84,7 @@ def download_all(year: int = datetime.today().year,
         try:
             _try_download(key, year, taxType, rs, lang)
         except HTTPError as e:
-            print(e)
+            # print(e)
 
 if __name__ == '__main__':
     download_all(taxType='income', rs='scales')
