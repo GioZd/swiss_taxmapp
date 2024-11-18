@@ -1,61 +1,17 @@
 import os
-# import datetime
 import warnings
+
+from datetime import datetime
 
 import polars as pl
 import polars.selectors as cs
 
 # from icecream import ic
+from utils import COLNAMES_RATES, COLNAMES_SCALES, TAXABLE_ENTITIES
 
-table = pl.read_excel(
-    "data/rates/estv_rates_2023.xlsx",
-    has_header=False, engine='xlsx2csv'
-)
-table = table.drop(cs.last())
 
-COLNAMES_RATES = [
-    'canton_ID', 'canton', 'FSO_ID', 'commune', 
-    'income_canton', 'income_commune',
-    'income_protestant', 'income_roman', 'income_catholic',
-    'assets_canton', 'assets_commune',
-    'assets_protestant', 'assets_roman', 'assets_catholic',
-    'profit_canton', 'profit_commune', 'profit_church',
-    'capital_canton', 'capital_commune', 'capital_church'
-]
-
-COLNAMES_SCALES = [
-    'canton_ID', 'canton', 'type_of_tax',
-    'taxable_entity', 'tax_authority',
-    'taxable_worth', 'additional_percentage',
-    'base_amount_CHF'
-]
-
-TAXABLE_ENTITIES = {
-    'single': [
-        'Alleinstehend ohne Kinder',
-        'Personne vivant seule, sans enfant',
-        'Persona sola senza figli',
-        'Single, no children'
-    ],
-    'with_family': [
-        'Verheiratet / Alleinstehend mit Kindern',
-        'Personne mariée / vivant seule, avec enfant',
-        'Coniugato / persona sola con figli',
-        'Married/Single, with children'
-    ],
-    'all': ['Alle', 'Tous', 'Tutti', 'All']
-}
-
-table.columns = COLNAMES_RATES
-table = table.slice(4)
-
-def _clean_rates(year: int = 2023) -> pl.DataFrame:
+def _clean_rates(year: int = 2023) -> pl.DataFrame: # completed
     file_path = "data/rates/estv_rates_{}.xlsx"
-    rates = pl.read_excel(
-        file_path.format(year),
-        has_header=False, 
-        engine='xlsx2csv'
-    )
     rates = pl.read_excel(
         file_path.format(year),
         has_header=False, 
@@ -76,7 +32,7 @@ def _clean_rates(year: int = 2023) -> pl.DataFrame:
         )
     )
 
-def retrieve_multipliers(rates_df: pl.DataFrame, 
+def retrieve_multipliers(rates_df: pl.DataFrame, # completed
     commune: str) -> dict[str, float] | None:
     # commune = commune.lower()
     multipliers = (
@@ -99,9 +55,9 @@ def retrieve_multipliers(rates_df: pl.DataFrame,
     return None if len(multipliers) == 0 else multipliers[0]
 
 
-def retrieve_multipliers_by_year(
+def retrieve_multipliers_by_year( # completed
     commune: str, 
-    latest_year: int = 2024
+    latest_year: int = datetime.today().year
 ) -> dict[str, float]:
     file_path = f"data/rates/estv_rates_{latest_year}.xlsx"
     multipliers = None
@@ -119,7 +75,7 @@ def retrieve_multipliers_by_year(
 
 
 def _clean_scales(canton: str, type_of_tax: str = 'income',
-                  latest_year: int = 2023) -> pl.DataFrame:
+                  latest_year: int = datetime.today().year) -> pl.DataFrame: # incomplete
     if type_of_tax.lower() not in ['income', 'assets']:
         raise ValueError('`type_of_tax` should be either "income" or "assets"')
     
@@ -207,13 +163,23 @@ def show_taxes(net_worth: float) -> None:
         
     )
 
+def _read_table():
+    table = pl.read_excel(
+        "data/rates/estv_rates_2023.xlsx",
+        has_header=False, engine='xlsx2csv'
+    )
+    table = table.drop(cs.last())
+    table.columns = COLNAMES_RATES
+    table = table.slice(4)
+    print(table)
+
 if __name__ == '__main__':
-    # print(table)
+    _read_table()
     # print(retrieve_multipliers(table, 'Adliswil'))
     # print(retrieve_multipliers_by_year('Lugano'))
     # print(_clean_scales('TI', 'income', 2024))
     # print(_clean_scales('TI', 'assets', 2024))
     # print(_select_scales('TI', 'with_family', latest_year=2023))
     # print(_clean_rates(2023))
-    print(_calculate_tax_base(80000, 'TI'))
-    show_taxes(80000)
+    # print(_calculate_tax_base(80000, 'TI'))
+    # show_taxes(80000)

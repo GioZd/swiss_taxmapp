@@ -1,3 +1,5 @@
+import os
+
 import polars as pl
 import polars.selectors as cs
 from icecream import ic
@@ -56,14 +58,17 @@ def _try_pandas():
 
 
 if __name__ == '__main__':
-    table = pl.read_excel(
-        "data/rates/estv_rates_2023.xlsx",
-        has_header=False, engine='xlsx2csv'
-    )
-    table = table.drop(cs.last())
-    table.columns = COLNAMES_RATES
-    table = table.slice(4)
-    print(table)
-    print(table.columns)
-    # print(col_names)
-    # print(*find_multipliers(table, 'income', 'Lugano'))
+    # table = pl.read_excel(
+    #     "data/rates/estv_rates_2023.xlsx",
+    #     has_header=False, engine='xlsx2csv'
+    # )
+    # table = table.drop(cs.last())
+    # table.columns = COLNAMES_RATES
+    # table = table.slice(4)
+    # print(table)
+    # print(table.columns)
+    # # print(col_names)
+    # # print(*find_multipliers(table, 'income', 'Lugano'))
+    import scraper
+    print(os.path.exists('../scraper.py'))
+    print(os.path)

@@ -12,7 +12,7 @@ from utils import TAX_GROUPS
 API_URLS = {
     'rates': (
         "https://swisstaxcalculator.estv.admin.ch"
-        "/delegate/ost-integration/v1/export/income-tax-scales/{}"
+        "/delegate/ost-integration/v1/export/income-tax-rates/{}"
     ),
     'scales': (
         "https://swisstaxcalculator.estv.admin.ch"
@@ -28,17 +28,18 @@ def _try_download(taxGroup: int, year: int,
                   taxType: str | None = None, 
                   rs: str = 'rates', lang: str = 'EN') -> None:
     sleep(0.1)
-    if taxType.lower() not in ['income', 'assets'] and rs == 'scales':
+    if rs == 'scales' and taxType.lower() not in ['income', 'assets']:
         raise ValueError('`type_of_tax` should be either "income" or "assets"')
     
-    payload = json.dumps(
-        {
-            "taxGroup": 99 if rs == 'rates' else taxGroup,
-            "simKey": None,
-            "year": year,
-            "taxType": None if rs == 'rates' else TAX_TYPES[taxType]
-        }
-    )
+    payload = {
+        "taxGroup": 99,
+        "simKey": None,
+        "year": year
+    }
+    if rs == 'scales':
+        payload.update({"taxType": TAX_TYPES[taxType]})
+        payload["taxGroup"] = taxGroup
+    payload = json.dumps(payload)
     req = rq.Request(
         url = API_URLS[rs].format(lang.upper()),
         headers = {
@@ -76,6 +77,9 @@ def _try_download(taxGroup: int, year: int,
 def download_all(year: int = datetime.today().year, 
             taxType: str | None = None, 
             rs: str = 'rates', lang: str = 'EN') -> None:
+    if rs == 'rates':
+        _try_download(99, year)
+        return
     for key in TAX_GROUPS.keys():
         try:
             _try_download(key, year, taxType, rs, lang)
@@ -85,3 +89,4 @@ def download_all(year: int = datetime.today().year,
 if __name__ == '__main__':
     download_all(taxType='income', rs='scales')
     download_all(taxType='assets', rs='scales')
+    download_all()
