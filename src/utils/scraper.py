@@ -7,7 +7,7 @@ from urllib.error import HTTPError
 from time import sleep
 from datetime import datetime
 
-from utils import TAX_GROUPS
+from constants import TAX_GROUPS
 
 API_URLS = {
     'rates': (
@@ -89,4 +89,4 @@ def download_all(year: int = datetime.today().year,
 if __name__ == '__main__':
     download_all(taxType='income', rs='scales')
     download_all(taxType='assets', rs='scales')
-    download_all()
+    download_all(rs='rates')

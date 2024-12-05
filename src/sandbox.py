@@ -69,6 +69,6 @@ if __name__ == '__main__':
     # print(table.columns)
     # # print(col_names)
     # # print(*find_multipliers(table, 'income', 'Lugano'))
-    import scraper
+    import utils.scraper as scraper
     print(os.path.exists('../scraper.py'))
     print(os.path)

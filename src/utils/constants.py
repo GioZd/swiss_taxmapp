@@ -8,25 +8,52 @@ COLNAMES_RATES = [
     'capital_canton', 'capital_commune', 'capital_church'
 ]
 
-COLNAMES_SCALES = [
+COLNAMES_SCALES_BASE = [
     'canton_ID', 'canton', 'type_of_tax',
     'taxable_entity', 'tax_authority',
     'taxable_worth', 'additional_percentage',
     'base_amount_CHF'
 ]
 
+COLNAMES_SCALES_DIFF = [
+    'canton_ID', 'canton', 'type_of_tax',
+    'taxable_entity', 'tax_authority',
+    'to_next_CHF', 'additional_percentage'
+]
+
+COLNAMES_SCALES_FLAT = [
+    'canton_ID', 'canton', 'type_of_tax',
+    'taxable_entity', 'tax_authority', 'tax_rate'
+]
+
+COLNAMES_SCALES_FORMULA = [
+    'canton_ID', 'canton', 'type_of_tax',
+    'taxable_entity', 'tax_authority',
+    'taxable_worth', 'formula'
+]
+
+TAX_AUTHORITIES = {
+    'canton': ['Kanton', 'Canton', 'Cantone'],
+    'commune': ['Gemeinde', 'Commune', 'Comune'],
+    'federal': ['Bundessteuer', 'Impôt fédéral', 
+                'Imposta federale', 'Federal tax']
+}
+
 TAXABLE_ENTITIES = {
     'single': [
-        'Alleinstehend ohne Kinder',
-        'Personne vivant seule, sans enfant',
-        'Persona sola senza figli',
-        'Single, no children'
+        'Alleinstehend', 'Alleinstehend ohne Kinder', 
+        'Alleinstehend mit / ohne Kinder',
+        'Personne vivant seule', 'Personne vivant seule, sans enfant',
+        'Personne vivant seule, avec / sans enfant',
+        'Persona sola', 'Persona sola senza figli', 'Persona sola con / senza figli',
+        'Single', 'Single, no children', 'Single, with / no children' 
     ],
     'with_family': [
-        'Verheiratet / Alleinstehend mit Kindern',
-        'Personne mariée / vivant seule, avec enfant',
-        'Coniugato / persona sola con figli',
-        'Married/Single, with children'
+        'Verheiratet', 'Verheiratet / Alleinstehend mit Kindern', 
+        'Marié(e)', 'Personne mariée / vivant seule, avec enfant',
+        'Coniugato', 'Coniugato / persona sola con figli',
+        'Married', 'Married/Single, with children',
+
     ],
     'all': ['Alle', 'Tous', 'Tutti', 'All']
 }
