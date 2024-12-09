@@ -1,4 +1,5 @@
 import os
+import sys
 import warnings
 
 from datetime import datetime
@@ -9,8 +10,9 @@ from typing import Callable, Literal, TypeAlias
 import polars as pl
 import polars.selectors as cs
 
-from icecream import ic
-from constants import (
+sys.path.append(os.path.dirname(sys.path[0]))
+
+from utils import (
     COLNAMES_RATES, COLNAMES_SCALES_BASE, 
     COLNAMES_SCALES_DIFF, COLNAMES_SCALES_FLAT,
     COLNAMES_SCALES_FORMULA, TAX_AUTHORITIES,
@@ -359,32 +361,48 @@ def fill_taxes(net_worth: float):
             ),
             federal_tax = calculate_tax_base(net_worth, 'Conf', authority='federal')
         )
-    )
-
-def show_taxes(net_worth: float) -> None:
-    table = clean_rates()
-    print(
-        table.with_columns(
-            cantonal_tax = (
-                pl.col('income_canton')
-                * pl.col('canton').map_elements(
-                    lambda x: calculate_tax_base(net_worth, x, authority='canton'),
-                    pl.Float64
-                )
+        .with_columns(
+            income_tax = (
+                pl.col('cantonal_income_tax')
+                + pl.col('communal_income_tax')
             ),
-            communal_tax = (
-                pl.col('income_commune')
-                * pl.col('canton').map_elements(
-                    lambda x: calculate_tax_base(net_worth, x, authority='commune'),
-                    pl.Float64
-                )
+            assets_tax = (
+                pl.col('cantonal_assets_tax')
+                + pl.col('communal_assets_tax')
+            ),
+            total = (
+                pl.col('cantonal_income_tax')
+                + pl.col('communal_income_tax')
+                + pl.col('cantonal_assets_tax')
+                + pl.col('cantonal_assets_tax')
+                + pl.col('federal_tax')
             )
         )
-        .sort(by=pl.col('cantonal_tax')+pl.col('communal_tax'), nulls_last=True)
-        # .group_by(pl.col('canton'))
-        # .agg(pl.col('communal_tax').null_count())
-        # .sort(pl.col('communal_tax'))
     )
+
+@lru_cache
+def fill_all_taxes(income: float, assets: float) -> pl.DataFrame:
+    table_income = fill_taxes(income)
+    table_assets = fill_taxes(assets)
+    return (
+        table_income.select(
+            pl.col('canton_ID'), pl.col('canton'),
+            pl.col('FSO_ID'), pl.col('commune'),
+            pl.col('federal_tax'), pl.col('income_tax')
+        )
+        .join(
+            table_assets.select(pl.col('FSO_ID'), pl.col('assets_tax')),
+            on = 'FSO_ID'
+        )
+        .with_columns(
+            total = pl.col('income_tax') + pl.col('assets_tax')
+        )
+    )
+
+
+def show_taxes(income: float, assets:float) -> None:
+    table = fill_all_taxes(income, assets)
+    print(table.sort(by=pl.col('total'), nulls_last=True))
 
 
 def _print_rates_table() -> None:
@@ -411,37 +429,4 @@ def _print_scales_table(canton: str, type_of_tax = 'income', year=2024) -> None:
     print(table)
 
 if __name__ == '__main__':
-    # _print_rates_table()
-    # print(retrieve_multipliers(table, 'Adliswil'))
-    # print(retrieve_multipliers_by_year('Lugano'))
-    # print(_clean_rates(2023))
-    # print(_calculate_tax_base(80000, 'TI'))
-    # show_taxes(80000)
-    # _print_scales_table('ZG', 'income')
-    _print_scales_table('BL', 'income')
-    # _print_scales_table('AG', 'income')
-    # _print_scales_table('UR', 'income')
-    # print(_clean_scales_base('TI', 'assets', 2024))
-    # print(_clean_scales_base('TI', 'income', 2024))
-    # print(_clean_scales_diff('ZH', 'income', 2024))
-    print(_clean_scales_flat('UR', 'income', 2024))
-    # print(_clean_scales_formula('BL', 'income', 2024))
-    # print(clean_scales('BL', 'income'))
-    # print(select_scales('UR', 'with_family', latest_year=2024))
-    # print(select_scales('ZH', 'with_family', latest_year=2024))
-    # print(select_scales('VS', 'with_family', latest_year=2024))
-    # print(calculate_tax_base(60_000, 'ZH', taxable_entity='single'))
-    # print(calculate_tax_base(60_000, 'TI', taxable_entity='single', type_of_tax='income'))
-    # print(calculate_tax_base(60_000, 'UR', taxable_entity='single', type_of_tax='income'))
-    # print(calculate_tax_base(10_000, 'BL', taxable_entity='single', type_of_tax='income'))
-    # print(calculate_tax_base(20_000, 'BL', taxable_entity='single', type_of_tax='income'))
-    # print(calculate_tax_base(60_000, 'BL', taxable_entity='single', type_of_tax='income'))
-    # print(calculate_tax_base(200_000, 'BL', taxable_entity='single', type_of_tax='income'))
-    # print(calculate_tax_base(10_000, 'BL', taxable_entity='with_family', type_of_tax='income'))
-    # print(calculate_tax_base(20_000, 'BL', taxable_entity='with_family', type_of_tax='income'))
-    # print(calculate_tax_base(60_000, 'BL', taxable_entity='with_family', type_of_tax='income'))
-    # print(calculate_tax_base(200_000, 'BL', taxable_entity='with_family', type_of_tax='income'))
-    print(select_scales('VS'))
-    print(select_scales('Conf', authority='federal'))
-    show_taxes(60_000)
-    fill_taxes(60_000)
+    show_taxes(60_000, 60_000)

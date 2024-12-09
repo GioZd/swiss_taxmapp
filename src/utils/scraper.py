@@ -7,7 +7,9 @@ from urllib.error import HTTPError
 from time import sleep
 from datetime import datetime
 
-from constants import TAX_GROUPS
+sys.path.append(os.path.dirname(sys.path[0]))
+
+from utils.constants import TAX_GROUPS
 
 API_URLS = {
     'rates': (

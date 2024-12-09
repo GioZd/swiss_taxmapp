@@ -1,14 +1,18 @@
 from .constants import (
-    COLNAMES_RATES,
-    COLNAMES_SCALES,
-    TAXABLE_ENTITIES,
-    TAX_GROUPS
+    COLNAMES_RATES, COLNAMES_SCALES_BASE, 
+    COLNAMES_SCALES_DIFF, COLNAMES_SCALES_FLAT,
+    COLNAMES_SCALES_FORMULA, TAX_AUTHORITIES,
+    TAXABLE_ENTITIES,TAX_GROUPS
 )
 from .pipelines import (
-    _clean_rates,
-    _clean_scales,
-    _calculate_tax_base,
+    calculate_tax_base,
+    clean_rates,
+    clean_scales,
+    fill_all_taxes,
+    fill_taxes,
     retrieve_multipliers,
+    retrieve_multipliers_by_year,
+    select_scales,
     show_taxes
 )
 from .scraper import (
