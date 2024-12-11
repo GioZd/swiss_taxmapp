@@ -1,6 +1,8 @@
+import json
 import locale
 
 import altair as alt
+import geopandas as gpd
 import polars as pl
 import streamlit as st
 
@@ -14,7 +16,7 @@ def display_table(income: float, assets: float) -> None:
     column_names = {
         'canton_ID': 'Canton ID',
         'canton': 'Canton',
-        'FSO_ID': 'FSO ID',
+        'FSO_ID': st.column_config.NumberColumn("FSO ID", format="%d"),
         'commune': 'Commune',
         'federal_tax': st.column_config.NumberColumn("Federal Tax", format="%.2f"),
         'income_tax': st.column_config.NumberColumn("Income Tax", format="%.2f"),
@@ -36,14 +38,32 @@ def display_table(income: float, assets: float) -> None:
         )   
 
 @st.cache_data
-def create_map() -> alt.Chart:
-    pass
+def create_map(income, assets) -> alt.Chart:
+    gdf: gpd.GeoDataFrame = gpd.read_file('./data/geodata/2024_GEOM_TK/01_INST/Gesamtfläche_gf/K4_kant20220101_gf/K4kant20220101gf_ch2007Poly.shp').to_crs("EPSG:4326")
+    gdf_json = gdf.to_json()
+    geojson = json.loads(gdf_json)
+    st.write(gdf)
+    st.json(geojson, expanded=False)
+    # st.write(type(gdf))
+    # gdf.plot.area()
+    # st.write(geojson['features'], expanded=False)
+    source = get_table(income, assets)
+    with open('data/output.json', 'w') as output: 
+        output.write(json.dumps(geojson))
+    regions = alt.topo_feature('data/output.json', 'properties')
+    return alt.Chart(regions).mark_geoshape().encode(
+            alt.Color('total:Q').scale(scheme='viridis')
+    ).transform_lookup(
+        lookup='total',
+        from_=alt.LookupData(source, 'id', ['total'])
+    )
 
 def show_map(income: float, assets: float):
     table = get_table(income, assets)
     options = ['All cantons']
     options.extend(table['canton'].unique().sort())
     canton = st.pills('Filter by canton', options, default='All cantons', key="pills1")
+    st.altair_chart(create_map(income, assets))
 
 
 def get_user_inputs() -> tuple[float, float]:
