@@ -24,7 +24,7 @@ TaxType: TypeAlias = Literal['income', 'assets']
 MaritalStatus: TypeAlias = Literal['all', 'single', 'with_family']
 
 
-def clean_rates(year: int = 2023) -> pl.DataFrame: # completed
+def clean_rates(year: int = 2023) -> pl.DataFrame:
     file_path = "data/rates/estv_rates_{}.xlsx"
     rates = pl.read_excel(
         file_path.format(year),
@@ -47,14 +47,12 @@ def clean_rates(year: int = 2023) -> pl.DataFrame: # completed
     )
 
 
-def retrieve_multipliers(rates_df: pl.DataFrame, # completed
-    commune: str) -> dict[str, float] | None:
-    # commune = commune.lower()
+def retrieve_multipliers(rates_df: pl.DataFrame, 
+                         commune: str) -> dict[str, float] | None:
     multipliers = (
         rates_df.filter(pl.col("commune")
                 .str.contains(commune, literal=True))
     )
-    # print(multipliers.to_dicts()[0])
     multipliers = (
         multipliers.select(
             pl.col('canton_ID').cast(pl.Int64), 
@@ -70,7 +68,7 @@ def retrieve_multipliers(rates_df: pl.DataFrame, # completed
     return None if len(multipliers) == 0 else multipliers[0]
 
 
-def retrieve_multipliers_by_year( # completed
+def retrieve_multipliers_by_year(
     commune: str, 
     latest_year: int = datetime.today().year
 ) -> dict[str, float]:
@@ -89,7 +87,7 @@ def retrieve_multipliers_by_year( # completed
     return multipliers     
 
 
-def _read_scales_from_excel( # working
+def _read_scales_from_excel(
         canton: str, type_of_tax: TaxType = 'income',
         latest_year: int = datetime.today().year 
 ) -> pl.DataFrame | None: 
@@ -115,16 +113,16 @@ def _read_scales_from_excel( # working
     return scales
 
 
-def _crop_table(table: pl.DataFrame, offset: int = 4) -> pl.DataFrame: # working
-    """Get rid of null rows and columns"""
+def _crop_table(table: pl.DataFrame, offset: int = 4) -> pl.DataFrame:
+    """Gets rid of null rows and columns"""
     table = table.slice(offset)
     not_null_cols = filter(lambda x: x.null_count() != table.height, table)
     not_null_col_names = map(lambda x: x.name, not_null_cols)
     table = table.select(not_null_col_names)
     return table
 
-
-def _clean_scales_base( # completed
+# There are 4 different main pipelines for cleaning scales
+def _clean_scales_base(
         canton: str, type_of_tax: TaxType = 'income',
         latest_year: int = datetime.today().year
 ) -> pl.DataFrame: 
@@ -142,7 +140,7 @@ def _clean_scales_base( # completed
     )
 
 
-def _clean_scales_diff( # working
+def _clean_scales_diff(
         canton: str, type_of_tax: TaxType = 'income',
         latest_year: int = datetime.today().year
 ) -> pl.DataFrame: 
@@ -160,7 +158,7 @@ def _clean_scales_diff( # working
     )
 
 
-def _clean_scales_flat( # working
+def _clean_scales_flat(
         canton: str, type_of_tax: TaxType = 'income',
         latest_year: int = datetime.today().year
 ) -> pl.DataFrame: 
@@ -177,7 +175,7 @@ def _clean_scales_flat( # working
     )
 
 
-def _clean_scales_formula( # working
+def _clean_scales_formula(
         canton: str, type_of_tax: TaxType = 'income',
         latest_year: int = datetime.today().year
 ) -> pl.DataFrame: 
@@ -195,7 +193,7 @@ def _clean_scales_formula( # working
     )
 
 @lru_cache
-def clean_scales( # working       
+def clean_scales(      
         canton: str, type_of_tax: str = 'income',
         latest_year: int = datetime.today().year
 ) -> pl.DataFrame: 
@@ -209,25 +207,22 @@ def clean_scales( # working
         _clean_scales_flat, _clean_scales_formula,
 
     ]
-    # scales = _read_scales_from_excel(canton, type_of_tax, latest_year)
-    # scales = _crop_table(scales, offset=0)
-    # option = scales.row(3)[-1]
-    # if option == 'Base amount CHF':
-    #     return _clean_scales_base(**kwargs)
     for i in range(4):
         try: 
             return CLEANING_FUNCTIONS[i](**kwargs)
-        except: 
+        except Exception as e: 
+            print(e)
             continue
 
 @lru_cache
-def select_scales( # in progress
+def select_scales(
     canton: str,
     taxable_entity: MaritalStatus = 'single',
     type_of_tax: TaxType = 'income',
     authority: Authority = 'canton',
     latest_year: int = datetime.today().year
 ) -> pl.DataFrame:
+    """Selects scales for a category"""
     if taxable_entity not in ['single', 'with_family', 'all']:
         raise ValueError(
             f"'{taxable_entity}' is not a valid taxable entity."
@@ -265,8 +260,9 @@ def select_scales( # in progress
     return sel2
 
 @lru_cache
-def calculate_tax_base(net_worth: float, canton: str, **kwargs) -> float: # in progress
-    """WARNING!!! There is a eval function below which is better not to use!"""
+def calculate_tax_base(net_worth: float, canton: str, **kwargs) -> float:
+    """Calculate taxes before applying the canton/commune-specific multipliers"""
+    ### WARNING!!! There is a eval function below which is better not to use! ###
     scales = select_scales(
         canton, 
         taxable_entity = kwargs.get('taxable_entity', 'single'), 
@@ -275,7 +271,7 @@ def calculate_tax_base(net_worth: float, canton: str, **kwargs) -> float: # in p
         latest_year = kwargs.get('latest_year', datetime.today().year)
     )
 
-    calculation_method = scales.columns[-1]
+    calculation_method = scales.columns[-1] # last column index is different for each method
     if calculation_method == 'base_amount_CHF':
         if max(scales.get_column('base_amount_CHF')) != 0:
             row = scales.filter(pl.col('taxable_worth') <= net_worth).to_dicts()[-1]
@@ -291,7 +287,6 @@ def calculate_tax_base(net_worth: float, canton: str, **kwargs) -> float: # in p
                 base += step * factors[i]
                 i += 1
             increment = (net_worth - amounts[i]) * factors[i]
-        # print(base, increment)
         return base + increment
     
     if calculation_method == 'additional_percentage':
@@ -313,27 +308,29 @@ def calculate_tax_base(net_worth: float, canton: str, **kwargs) -> float: # in p
     if calculation_method == 'formula':
         row = scales.filter(pl.col('taxable_worth') <= net_worth).to_dicts()[-1]
         formula: str | None = row['formula']
-        # print(formula)
         if formula:
             return eval(formula.replace('$wert$', f'({net_worth})'))
         else:
             return 0
 
-def fill_taxes(net_worth: float):
+def fill_taxes(net_worth: float, **kwargs) -> pl.DataFrame:
+    """Multiply the tax base by the relative cantonal/communal multiplier"""
     table = clean_rates()
     return (
         table.with_columns(
             cantonal_income_tax = (
                 pl.col('income_canton')
                 * pl.col('canton').map_elements(
-                    lambda x: calculate_tax_base(net_worth, x, authority='canton'),
+                    lambda x: calculate_tax_base(net_worth, x, authority='canton', **kwargs),
                     pl.Float64
                 )
             ),
             communal_income_tax = (
                 pl.col('income_commune')
                 * pl.col('canton').map_elements(
-                    lambda x: calculate_tax_base(net_worth, x, authority='commune'),
+                    lambda x: calculate_tax_base(
+                        net_worth, x, authority='commune', **kwargs
+                    ),
                     pl.Float64
                 )
             ),
@@ -343,7 +340,8 @@ def fill_taxes(net_worth: float):
                     lambda x: calculate_tax_base(
                         net_worth, x, 
                         authority='canton', 
-                        type_of_tax = 'assets'
+                        type_of_tax = 'assets',
+                        **kwargs
                     ),
                     pl.Float64
                 )
@@ -354,12 +352,17 @@ def fill_taxes(net_worth: float):
                     lambda x: calculate_tax_base(
                         net_worth, x, 
                         authority = 'commune',
-                        type_of_tax = 'assets'
+                        type_of_tax = 'assets',
+                        **kwargs
                     ),
                     pl.Float64
                 )
             ),
-            federal_tax = calculate_tax_base(net_worth, 'Conf', authority='federal')
+            federal_tax = calculate_tax_base(
+                net_worth, 'Conf', 
+                authority='federal',
+                **kwargs
+            )
         )
         .with_columns(
             income_tax = (
@@ -381,17 +384,22 @@ def fill_taxes(net_worth: float):
     )
 
 @lru_cache
-def fill_all_taxes(income: float, assets: float) -> pl.DataFrame:
-    table_income = fill_taxes(income)
-    table_assets = fill_taxes(assets)
+def fill_all_taxes(income: float, assets: float, **kwargs) -> pl.DataFrame:
+    """Calculate both income and assets tax. **kwargs include latest_year=..."""
+    table_income = fill_taxes(income, **kwargs)
+    table_assets = fill_taxes(assets, **kwargs)
     return (
         table_income.select(
             pl.col('canton_ID'), pl.col('canton'),
             pl.col('FSO_ID'), pl.col('commune'),
-            pl.col('federal_tax'), pl.col('income_tax')
+            pl.col('federal_tax'), pl.col('income_tax'),
+            pl.col('cantonal_income_tax'), pl.col('communal_income_tax')
         )
         .join(
-            table_assets.select(pl.col('FSO_ID'), pl.col('assets_tax')),
+            table_assets.select(
+                pl.col('FSO_ID'), pl.col('assets_tax'),
+                pl.col('cantonal_assets_tax'), pl.col('communal_assets_tax')
+            ),
             on = 'FSO_ID'
         )
         .with_columns(
@@ -400,8 +408,8 @@ def fill_all_taxes(income: float, assets: float) -> pl.DataFrame:
     )
 
 
-def show_taxes(income: float, assets:float) -> None:
-    table = fill_all_taxes(income, assets)
+def show_taxes(income: float, assets:float, **kwargs) -> None:
+    table = fill_all_taxes(income, assets, **kwargs)
     print(table.sort(by=pl.col('total'), nulls_last=True))
 
 
@@ -414,6 +422,7 @@ def _print_rates_table() -> None:
     table.columns = COLNAMES_RATES
     table = table.slice(4)
     print(table)
+
 
 def _print_scales_table(canton: str, type_of_tax = 'income', year=2024) -> None:
     table = pl.read_excel(
@@ -429,4 +438,4 @@ def _print_scales_table(canton: str, type_of_tax = 'income', year=2024) -> None:
     print(table)
 
 if __name__ == '__main__':
-    show_taxes(60_000, 60_000)
+    show_taxes(60_000, 600_000)

@@ -1,4 +1,4 @@
-![README Taxmapp](elements/taxmapp.png.jpg)
+![README Taxmapp](elements/taxmapp.svg)
 # README
 Ci sono sostanzialmente tre tipi di tassazione:
 1. (base + differenza) * % dello scaglione (es. Ticino)

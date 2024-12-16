@@ -590,7 +590,6 @@ dependencies = [
     { name = "altair" },
     { name = "geopandas" },
     { name = "polars" },
-    { name = "pyarrow" },
     { name = "streamlit" },
     { name = "xlsx2csv" },
 ]
@@ -600,7 +599,6 @@ requires-dist = [
     { name = "altair", specifier = "==5.3.0" },
     { name = "geopandas", specifier = ">=1.0.1" },
     { name = "polars", specifier = ">=1.17.1" },
-    { name = "pyarrow", specifier = ">=18.0.0" },
     { name = "streamlit", specifier = ">=1.40.1" },
     { name = "xlsx2csv", specifier = ">=0.8.4" },
 ]

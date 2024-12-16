@@ -5,6 +5,7 @@ from .constants import (
     TAXABLE_ENTITIES,TAX_GROUPS
 )
 from .pipelines import (
+    Authority, MaritalStatus, TaxType,
     calculate_tax_base,
     clean_rates,
     clean_scales,
