@@ -1,5 +1,0 @@
-calculate taxation
-- canton
-    - on net income
-    - on net assets
-- confederation
