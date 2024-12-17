@@ -4,10 +4,25 @@
 Switzerland has been a federal republic since 1848, hence its own cantons may differ significantly in regulations, permissions, prohibitions and... taxes!
 This app can offer you a preview of what could be the most convenient places where to settle down in the Helvetic territory, based on a tax comparison between cantons and municipalities.
 
-DISCLAIMER: This tool offers only approximate calculations that ignore important features and articulations of official tax computations, that take into consideration also religion, age, familiar status and so on.
+[!NOTE]: This tool offers only approximate calculations that ignore important features and articulations of official tax computations, that take into consideration also religion, age, familiar status and so on.
 
 ## Getting started
-Download the official [GitHub repository](https://github.com/GioZd/swiss_taxmapp)
+Download the official [GitHub repository](https://github.com/GioZd/swiss_taxmapp) through HTTPS with the command line
+> git clone https://github.com/GioZd/swiss_taxmapp.git
+or through SSH protocol with the command line
+> git clone git@github.com:GioZd/swiss_taxmapp.git
+If having any troubles or not having Git installed, just download and decompress the zip folder.
+
+Before launching the program, Python 3 and packages `streamlit`, `polars`, `altair`, `geopandas` and `xlsx2csv` must be installed (working versions for Python and for each dependency are pinned in the `pyproject.toml`).
+To launch the program, execute the following command from the project folder:
+```sh
+streamlit run app.py
+```
+If using `uv` software as environment manager run preferably
+```sh
+uv run streamlit run app.py
+```
+that will instantiate and activate a virtual environment containing all correct dependencies, including Python 3.13.
 
 
 Ci sono sostanzialmente tre tipi di tassazione:
@@ -65,6 +80,6 @@ o di formulazione. L'elenco puntato si riferisce alla tassa sul reddito.
 6. Translations to French or other languages.
 
 ## Stable version
-v.1.1.0
+v.1.1.2
 
 ## Credits
