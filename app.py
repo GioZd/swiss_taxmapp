@@ -522,7 +522,7 @@ def one_to_one(**kwargs) -> None:
 
 
 def about():
-    st.write(get_readme())
+    st.write(get_readme(), unsafe_allow_html=True)
 
 
 def main():
