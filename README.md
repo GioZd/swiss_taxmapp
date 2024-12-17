@@ -1,9 +1,19 @@
 ![README Taxmapp](elements/taxmapp.svg)
 # README
+## TAXMAPP - The Ultimate Swiss Taxes Comparator
+Switzerland has been a federal republic since 1848, hence its own cantons may differ significantly in regulations, permissions, prohibitions and... taxes!
+This app can offer you a preview of what could be the most convenient places where to settle down in the Helvetic territory, based on a tax comparison between cantons and municipalities.
+
+DISCLAIMER: This tool offers only approximate calculations that ignore important features and articulations of official tax computations, that take into consideration also religion, age, familiar status and so on.
+
+## Getting started
+Download the official [GitHub repository](https://github.com/GioZd/swiss_taxmapp)
+
+
 Ci sono sostanzialmente tre tipi di tassazione:
 1. (base + differenza) * % dello scaglione (es. Ticino)
 2. sum(delta_i * %_i) (es. Argovia)
-3. flat tax
+3. flat tax <math>\sum x_i</math>
 
 Alla categoria 1. appartengono:
 - BS
@@ -53,3 +63,8 @@ o di formulazione. L'elenco puntato si riferisce alla tassa sul reddito.
 4. Progressively populating SQLite database to collect increasingly more data without overwriting the previous.
 5. Code optimization for faster response and visualization.
 6. Translations to French or other languages.
+
+## Stable version
+v.1.1.0
+
+## Credits

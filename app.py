@@ -184,7 +184,9 @@ def show_map(income: float, assets: float, **kwargs) -> None:
 
 def show_1v1(**kwargs):
     income, assets = get_user_inputs('k1', 'k2')
-    table = get_table(income, assets, **kwargs)
+    table = get_table(income, assets, **kwargs).with_columns(
+        (100*pl.col('total')/income).alias('ratio_percentage')
+    )
     st.divider()
     sx, central, dx = st.columns([4,1,4], vertical_alignment='bottom')
     options = ['All cantons']
@@ -231,6 +233,12 @@ def show_1v1(**kwargs):
     
     row1 = table.filter(pl.col('commune') == city1)
     row2 = table.filter(pl.col('commune') == city2)
+    sx.html(f'<p style="text-align: justify; font-size: 80%; margin: 0">'
+            f'CHF {row1[0, 'total']:,.2f}'
+            f' ({row1[0, 'ratio_percentage']:.2f}% of income)</p>')
+    dx.html(f'<p style="text-align: justify; font-size: 80%; margin: 0">'
+            f'CHF {row2[0, 'total']:,.2f}'
+            f' ({row2[0, 'ratio_percentage']:.2f}% of income)</p>')
     cmp_data = (
         pl.concat([row1, row2])
         .unpivot(index = ['canton_ID', 'canton', 'FSO_ID', 'commune'])
@@ -328,14 +336,25 @@ def show_1v1(**kwargs):
         'canton': 'Canton',
         'FSO_ID': st.column_config.NumberColumn("FSO ID", format="%d"),
         'commune': 'Commune',
-        'federal_tax': st.column_config.NumberColumn("Federal Tax", format="%.2f"),
-        'cantonal_income_tax': st.column_config.NumberColumn("(Canton) Income Tax", format="%.2f"),
-        'communal_income_tax': st.column_config.NumberColumn("(Commune) Income Tax", format="%.2f"),
-        'income_tax': st.column_config.NumberColumn("Income Tax", format="%.2f"),
-        'cantonal_assets_tax': st.column_config.NumberColumn("(Canton) Assets Tax", format="%.2f"),
-        'communal_assets_tax': st.column_config.NumberColumn("(Commune) Assets Tax", format="%.2f"),
+        'federal_tax': st.column_config.NumberColumn("Federal Tax", 
+                                                     format="%.2f"),
+        'cantonal_income_tax': st.column_config.NumberColumn("(Canton) Income Tax", 
+                                                             format="%.2f"),
+        'communal_income_tax': st.column_config.NumberColumn("(Commune) Income Tax", 
+                                                             format="%.2f"),
+        'income_tax': st.column_config.NumberColumn("Income Tax", 
+                                                    format="%.2f"),
+        'cantonal_assets_tax': st.column_config.NumberColumn("(Canton) Assets Tax", 
+                                                             format="%.2f"),
+        'communal_assets_tax': st.column_config.NumberColumn("(Commune) Assets Tax", 
+                                                             format="%.2f"),
         'assets_tax': st.column_config.NumberColumn("Assets Tax", format="%.2f"),
-        'total': st.column_config.NumberColumn("Total", format="%.2f"),
+        'total': st.column_config.NumberColumn("Total", 
+                                               format="%.2f", 
+                                               width="small"),
+        'ratio_percentage': st.column_config.NumberColumn("% Income", 
+                                                          format="%.2f %%", 
+                                                          width="small"),
     }
     st.dataframe(pl.concat([row1, row2]), use_container_width=True, column_config=column_names)
 
@@ -352,8 +371,10 @@ def download_data(year: int = datetime.today().year):
             mins, secs = divmod(left_time, 60)
             my_bar.progress(round(adv*1.5), text=text.format(adv, mins, secs))
         except Exception as e:
-            pass
-    for adv, key in enumerate(TAX_GROUPS.keys(), 27):
+            sleep(3)
+            my_bar.empty()
+            raise e
+    for adv, key in enumerate(list(TAX_GROUPS.keys())[:-1], 27):
         try:
             _try_download(key, year, taxType='assets', rs='scales')
             t1 = time()
@@ -361,12 +382,16 @@ def download_data(year: int = datetime.today().year):
             mins, secs = divmod(left_time, 60)
             my_bar.progress(round(adv*1.5), text=text.format(adv, mins, secs))
         except Exception as e:
-            pass
+            sleep(3)
+            my_bar.empty()
+            raise e
     try:
         _try_download(99, year)
         my_bar.progress(100)
     except Exception as e:
-        pass
+            sleep(3)
+            my_bar.empty()
+            raise e
     sleep(3)
     my_bar.empty()
 
@@ -387,7 +412,7 @@ def config_download(year: int = datetime.today().year) -> None:
     if (now - last).days >= 0: # set to 7 to show once a week
         button_placeholder = rc.empty()
         download_button = button_placeholder.button(
-            'Get newer data', icon=':material/cloud:',  key='download_button'
+            'Get newer data', icon=':material/cloud:'
         )
         try:
             if download_button:
@@ -506,14 +531,20 @@ def main():
     year = select_year()
     language = choose_language()
     st.image('elements/taxmapp.svg', use_container_width=True)
+    def home():
+        homepage(latest_year=year)
+    def page2():
+        one_to_one(latest_year=year)
     pg = st.navigation([
         st.Page(
-            partial(homepage, latest_year=year).func, 
+            home,
+            # partial(homepage, latest_year=year).func, 
             default=True, title='Home',
             icon=':material/house:'
         ), 
         st.Page(
-            partial(one_to_one, latest_year=year).func, 
+            page2,
+            # partial(one_to_one, latest_year=year).func, 
             title='1v1', icon=':material/compare_arrows:'
         ),
         st.Page(about, icon=':material/info:', title='About')
