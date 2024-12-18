@@ -75,7 +75,7 @@ DISCLAIMER: This app offers only approximate calculations that ignore important 
 
 ## Geographical data
 
-Geographical datasets to draw the base map in the homepage section are released periodically by the Federal Statistical Office under [OPEN-BY-ASK](https://www.bfs.admin.ch/bfs/en/home/bfs/bundesamt-statistik/nutzungsbedingungen.html) License.[[5](#5)] Coordinates are expressed by default in the CH1903+ (LV95) coordinate reference system, by which positions are measured in meters North/South-ward and East/West-ward from the old observatory of Bern, plus two different constants (one for the North direction, one for the South). Geopandas GeoDataFrame offers a method to trace back to the more familiar EPSG:4326 coordinate reference system and then project the map with the most common projection types (Mercator by Altair default). Alternatively, this dataframe has a structure that allows to be projected as-is, with type of projection equal to "identity". This approach mantains the Swiss predefined "Swiss-grid" projection, a cylindrical projection centered in Bern.[[6](#6)] However, the former method was preferred, beacuse it doesn't affect significantly the comparison between internal surfaces, due to Switzerland's small sizes and it is more understandable.
+Geographical datasets to draw the base map in the homepage section are released periodically by the Federal Statistical Office under [OPEN-BY-ASK](https://www.bfs.admin.ch/bfs/en/home/bfs/bundesamt-statistik/nutzungsbedingungen.html) License.[[5](#5)] Coordinates are expressed by default in the CH1903+ (LV95) coordinate reference system, by which positions are measured in meters North/South-ward and East/West-ward from the old observatory of Bern, plus two different constants (one for the North direction, one for the South). Geopandas GeoDataFrame offers a method to trace back to the more familiar EPSG:4326 coordinate reference system and then project the map with the most common projection types (Mercator by Altair default). Alternatively, this dataframe has a structure that allows to be projected as-is, with type of projection equal to "identity". This approach mantains the Swiss predefined "Swiss-grid" projection, a cylindrical projection centered in Bern.[[6](#6)] However, the former method was preferred, beacuse it doesn't affect significantly the comparison between internal surfaces, due to Switzerland's relatively small extension and it is more understandable.
 
 
 ## Enhancement proposals
@@ -91,7 +91,7 @@ Geographical datasets to draw the base map in the homepage section are released 
 6. Translations to German, Italian, French or other languages.
 
 ## Stable version
-v.1.1.2
+v.1.1.3
 
 ## References and data sources
 [<a id="1"></a>1] uv. Astral Docs. [https://docs.astral.sh/uv](https://docs.astral.sh/uv). An extremely fast Python package and project manager, written in Rust.

@@ -235,11 +235,11 @@ def show_1v1(**kwargs):
     row1 = table.filter(pl.col('commune') == city1)
     row2 = table.filter(pl.col('commune') == city2)
     sx.html(f'<p style="text-align: justify; font-size: 80%; margin: 0">'
-            f'CHF {row1[0, 'total']:,.2f}'
-            f' ({row1[0, 'ratio_percentage']:.2f}% of income)</p>')
+            f'CHF {row1[0, "total"]:,.2f}'
+            f' ({row1[0, "ratio_percentage"]:.2f}% of income)</p>')
     dx.html(f'<p style="text-align: justify; font-size: 80%; margin: 0">'
-            f'CHF {row2[0, 'total']:,.2f}'
-            f' ({row2[0, 'ratio_percentage']:.2f}% of income)</p>')
+            f'CHF {row2[0, "total"]:,.2f}'
+            f' ({row2[0, "ratio_percentage"]:.2f}% of income)</p>')
     cmp_data = (
         pl.concat([row1, row2])
         .unpivot(index = ['canton_ID', 'canton', 'FSO_ID', 'commune'])
