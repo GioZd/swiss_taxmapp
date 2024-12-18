@@ -9,10 +9,12 @@ Download the official [GitHub repository](https://github.com/GioZd/swiss_taxmapp
 ```sh
 git clone https://github.com/GioZd/swiss_taxmapp.git
 ```
+
 or through SSH protocol with the command line
 ```sh
 git clone git@github.com:GioZd/swiss_taxmapp.git
 ```
+
 If having any troubles or not having Git installed, just download and decompress the zip folder.
 
 Before launching the program, Python 3 and packages `streamlit`, `polars`, `altair`, `geopandas` and `xlsx2csv` must be installed (working versions for Python and for each dependency are pinned in the `pyproject.toml`).
@@ -71,6 +73,11 @@ Then this values are multiplied for a specific factor depending on the canton an
 
 DISCLAIMER: This app offers only approximate calculations that ignore important features and articulations of official tax computations, that take into consideration also religion, age, familiar status and so on. Furthermore, even the online tool for tax calculation supplied by the Federal Tax Administration (source of all data) claims not to be binding.[[3](#3)] [[4](#4)]
 
+## Geographical data
+
+Geographical datasets to draw the base map in the homepage section are released periodically by the Federal Statistical Office under [OPEN-BY-ASK](https://www.bfs.admin.ch/bfs/en/home/bfs/bundesamt-statistik/nutzungsbedingungen.html) License.[[5](#5)] Coordinates are expressed by default in the CH1903+ (LV95) coordinate reference system, by which positions are measured in meters North/South-ward and East/West-ward from the old observatory of Bern, plus two different constants (one for the North direction, one for the South). Geopandas GeoDataFrame offers a method to trace back to the more familiar EPSG:4326 coordinate reference system and then project the map with the most common projection types (Mercator by Altair default). Alternatively, this dataframe has a structure that allows to be projected as-is, with type of projection equal to "identity". This approach mantains the Swiss predefined "Swiss-grid" projection, a cylindrical projection centered in Bern.[[6](#6)] However, the former method was preferred, beacuse it doesn't affect significantly the comparison between internal surfaces, due to Switzerland's small sizes and it is more understandable.
+
+
 ## Enhancement proposals
 1. More accurate tax calculations:
     - computation of personal tax,
@@ -95,4 +102,19 @@ v.1.1.2
 
 [<a id="4"></a>4] Federal tax administration FTA. [https://www.estv.admin.ch/estv/en/home.html](https://www.estv.admin.ch/estv/en/home.html). FTA website for more detailed readings.
 
-## Credits
+[<a id="5"></a>5] Base Maps - Federal Statistical Office FSO. [https://www.bfs.admin.ch/bfs/en/home/statistics/regional-statistics/base-maps.html](https://www.bfs.admin.ch/bfs/en/home/statistics/regional-statistics/base-maps.html). Geographical databases for statistical mapping.
+
+[<a id="6"></a>6] Geodetic Reference systems - Federal Office of Topography (swisstopo). [https://www.swisstopo.admin.ch/en/geodetic-reference-systems](https://www.swisstopo.admin.ch/en/geodetic-reference-systems). Deeper information about the Swiss reference system.
+
+## License and Credits
+The code is under [MIT License](LICENSE).
+
+Data hereby provided are under their respective licenses and ownerships.
+
+---
+Giovanni Zedda, BSc student at the Department of Statistical Sciences
+
+University of Padua, 19 December 2024
+
+---
+Copyright (c) 2024 Giovanni Zedda

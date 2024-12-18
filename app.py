@@ -137,8 +137,9 @@ def create_map(income: float, assets: float,
     )
     swissmap: alt.LayerChart = (layer3 + top_layer + layer2 + layer1)
     if canton != 'All cantons':
-        swissmap = swissmap.project(        
-            # clipExtent = [[bounds.minx, bounds.miny], [bounds.maxx, bounds.maxy]]
+        swissmap = swissmap.project( 
+            # type = "identity",       
+            # clipExtent = [[bounds.minx, bounds.miny], [bounds.maxx, bounds.maxy]],
             center = (center.x, center.y),
             scale = 10_000 / sqrt(deltamax)
         )
@@ -455,7 +456,7 @@ def get_user_inputs(key1: str | None = None,
 
 
 def get_readme() -> str:
-    with open('README.md', 'r') as file:
+    with open('README.md', 'r', encoding='UTF-8') as file:
         readme = file.readlines()
     return '\n'.join(readme[1:])
 
