@@ -1,5 +1,6 @@
 __pycache__/*
 _scraper.py
+cachedata/*
 requirements.txt
 tests.py
 todo.txt
