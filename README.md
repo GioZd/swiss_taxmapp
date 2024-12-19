@@ -90,6 +90,9 @@ Geographical datasets to draw the base map in the homepage section are released 
 5. Code optimization for faster response and visualization.
 6. Translations to German, Italian, French or other languages.
 
+## Web app
+[https://taxmapp.streamlit.app](https://taxmapp.streamlit.app/)
+
 ## Stable version
 v.1.1.3
 
