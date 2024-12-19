@@ -63,7 +63,7 @@ Switzerland is a Federal Republic divided into 26 cantons. For convenience the n
 
 ## Insights of data collection and tax calculation
 
-Data were collected from this [online tool](https://swisstaxcalculator.estv.admin.ch/) for tax calculation supplied by the Federal Tax Administration, in the form of Excel tables.
+Data were collected from this [online tool](https://swisstaxcalculator.estv.admin.ch/) for tax calculation supplied by the Federal Tax Administration through its internal APIs, in the form of Excel tables.
 The data show 4 different main patterns, briefly described below.
 1. $\Delta_s\times c_s\% + \text{Tax Base}$ where $\Delta_s=\text{Value}-\text{Floor Rank(Value)}$ and $c_s\%$ is a rank-relative coefficient. Income tax for BS, FR, GE, GL, GR, LU, NE, SH, SO, TG, TI, VD, VS, ZG, assets tax for AR, BE, BL, BS, FR, GE, JU, NE, SO, TI, VD, VS, ZG and the Federal Tax follow this formula. Eg. in canton Geneva (GE) a CHF 100,000 income implies a $(100,000-76,812)\times 15.5\% +7,828=\text{CHF } 11,422.14$ base for further numeric processing. Tax base may be fixed by the canton or calculated iteratively starting form zero.
 2. $\sum_{i=1}^{s}\Delta_i\cdot c_i\%$ that means that a CHF 100,000 income in Zurich will be divided as follows: $(6,900\times 0\%) + (4,900\times 2\%) + \dots + (17,400\times 8\%) + (\text{remaining }24,600\times 9\%)=\text{CHF }6,207$ (then further processed). Income tax for AG, AI, AR, BE, BL, JU, NW, SG, SZ, ZH and assets tax for AG, GR, SH and ZH follow this procedure.
